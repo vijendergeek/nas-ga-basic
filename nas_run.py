@@ -30,16 +30,16 @@ trainset = CIFAR10(root='./data', train=True, download=True, transform=transform
 valset = CIFAR10(root='./data', train=False, download=True, transform=transform)
 
 # Use only 1000 samples for quick NAS
-train_subset = Subset(trainset, range(1000))
-val_subset = Subset(valset, range(200))
+train_subset = Subset(trainset, range(device.type == 'cpu' and 1000 or 5000))
+val_subset = Subset(valset, range(device.type == 'cpu' and 1000 or 5000))
 
-train_loader = DataLoader(train_subset, batch_size=32, shuffle=True)
-val_loader = DataLoader(val_subset, batch_size=32, shuffle=False)
+train_loader = DataLoader(train_subset, batch_size=(device.type == 'cpu' and 32 or 256), shuffle=True)
+val_loader = DataLoader(val_subset, batch_size=(device.type == 'cpu' and 32 or 256), shuffle=False)
 
 # Run NAS with GA
 ga = GeneticAlgorithm(
-    population_size=5,  # Small population for demonstration
-    generations=3,       # Few generations for quick results
+    population_size=(device.type == 'cpu' and 5 or 10),  # Small population for demonstration
+    generations=(device.type == 'cpu' and 3 or 5),       # Few generations for quick results
     mutation_rate=0.3,
     crossover_rate=0.7
 )

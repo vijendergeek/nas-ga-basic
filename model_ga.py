@@ -72,7 +72,7 @@ class GeneticAlgorithm:
 
             # Quick training
             best_acc = 0
-            patience = 5
+            patience = (device.type == 'cpu') and 5 or 10
             step = 1
             best_epoch = 1
             for epoch in range(1, epochs+1):
