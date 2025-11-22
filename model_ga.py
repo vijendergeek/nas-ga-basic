@@ -106,6 +106,11 @@ class GeneticAlgorithm:
                     step += 1
                 if step >= patience:
                     break
+
+            # Calculate model complexity penalty
+            num_params = sum(p.numel() for p in model.parameters())
+            complexity_penalty_original = num_params / 1e6  # Normalize
+            modified_fitness_without_weights = best_acc - 0.01*complexity_penalty_original
             # Calculate separate parameters with weight
             convolutional_params = 0
             fc_params = 0
@@ -116,6 +121,10 @@ class GeneticAlgorithm:
                     convolutional_params += sum(p.numel() for p in module.parameters()) * kernel_size * kernel_size
                 elif isinstance(module, nn.Linear):
                     fc_params += sum(p.numel() for p in module.parameters())
+
+            print("-" * 80, flush=True)
+            print(f"Total Conv Params: {convolutional_params:,d}", flush=True)
+            print(f"Total FC Params: {fc_params:,d}", flush=True)
 
             convolutional_weight = 2
             fc_weight = 1
@@ -129,6 +138,19 @@ class GeneticAlgorithm:
 
             del model, inputs, outputs, labels
             torch.cuda.empty_cache()
+
+            print("\nFitness Analysis:", flush=True)
+            print("-" * 80, flush=True)
+            print(f"Accuracy: {best_acc:.4f}", flush=True)
+            print(f"Original Complexity Penalty: {complexity_penalty_original:.4f}", flush=True)
+            print(f"Original Penalty Scale (λ): {complexity_lambda_scale}", flush=True)
+            print(f"Original Penalty (λ * penalty): {complexity_lambda_scale * complexity_penalty_original:.4f}", flush=True)
+            print(f"Original Fitness: {modified_fitness_without_weights:.4f}", flush=True)
+            print(f"Weighted Complexity Penalty: {complexity_penalty:.4f}", flush=True)
+            print(f"Penalty Scale (λ): {complexity_lambda_scale}", flush=True)
+            print(f"Final Penalty (λ * penalty): {complexity_lambda_scale * complexity_penalty:.4f}", flush=True)
+            print(f"Modified Fitness(Weighted Complexity Penalty) : {(best_acc - complexity_lambda_scale * complexity_penalty):.4f}", flush=True)
+            print("-" * 80, flush=True)
 
             # Fitness = accuracy - lambda * complexity
             architecture.accuracy = best_acc
