@@ -99,6 +99,9 @@ CNN(
 
 - `nas_run.py`  
   Orchestrates the NAS experiment: sets hyperparameters (population size, generations, etc.), runs GA, and prints the best architecture.
+- `nas_run_rw_weighted_penality.log`
+A log file for reference generated from latest run on CPU.
+
 
 ---
 
@@ -112,7 +115,7 @@ To reproduce the assignment:
    - Roulette-wheel selection probabilities.
    - Fitness analysis with original vs. weighted complexity penalties.
    - Final best architecture (genes, accuracy, fitness, and parameter count).
-4. nas_run_rw_weighted_penality.log A log file for reference generated from latest run on CPU.
+
 
 Only **minimal changes** were made to `model_ga.py`:
 
